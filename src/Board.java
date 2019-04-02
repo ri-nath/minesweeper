@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Random;
 
 class Board implements ActionListener {
@@ -14,35 +15,26 @@ class Board implements ActionListener {
 
 
     Board(int height, int width) {
+        frame = new JFrame("minesweeper");
+
         this.height = height;
         this.width = width;
 
         minefield = new Cell[height][width];
 
-        for (int h = 0; h < height; h++) {
-            for (int w = 0; w < width; w++) {
+        for (int row = 0; row < height; row++) {
+            for (int col = 0; col < width; col++) {
                 Cell cell = new Cell();
-                int[] position = {h, w};
-                cell.position(position);
-                if (new Random().nextInt(25)==0) {
-                    cell.addMine();
-                }
-                minefield[h][w] = cell;
+                if (new Random().nextInt(3)==0) cell.addMine();
+                cell.position(row, col);
+                minefield[row][col] = cell;
             }
         }
 
-        frame = new JFrame("minesweeper");
-
-        frame.pack();
-        frame.setVisible(true);
-    }
-
-    void render() {
-        //JFrame frame = new JFrame("minesweeper");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLayout(new GridLayout(height, width));
         for (Cell[] row : minefield) {
             for (Cell cell : row) {
+                findBombs(cell);
+
                 JButton button = cell.render();
                 button.addActionListener(this);
                 button.putClientProperty("cell", cell);
@@ -50,53 +42,53 @@ class Board implements ActionListener {
             }
         }
 
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLayout(new GridLayout(height, width));
         frame.pack();
+        frame.setVisible(true);
     }
 
-    private int findBombs(int row, int col){
+    private void findBombs(Cell target){
         int bombs = 0;
-        if (isValid((row-1), (col-1))) {
-            if (minefield[row-1][col-1].getMine()) {
-                bombs++;
-            }
-        }
-        if (isValid((row-1), (col))) {
-            if (minefield[row-1][col].getMine()) {
-                bombs++;
-            }
-        }
-        if (isValid((row-1), (col+1))) {
-            if (minefield[row-1][col+1].getMine()) {
-                bombs++;
-            }
-        }
-        if (isValid((row), (col-1))) {
-            if (minefield[row][col-1].getMine()) {
-                bombs++;
-            }
-        }
-        if (isValid((row+1), (col-1))) {
-            if (minefield[row+1][col-1].getMine()) {
-                bombs++;
-            }
-        }
-        if (isValid((row+1), (col))) {
-            if (minefield[row+1][col].getMine()) {
-                bombs++;
-            }
-        }
-        if (isValid((row+1), (col+1))) {
-            if (minefield[row+1][col+1].getMine()) {
-                bombs++;
-            }
-        }
-        if (isValid((row), (col+1))) {
-            if (minefield[row][col+1].getMine()) {
-                bombs++;
+        int row = target.getRow();
+        int col = target.getCol();
+
+        for (int r = -1; r < 2; r++) {
+            for (int c = -1; c < 2; c++) {
+                if (isValid(row+r, col+c)) if (minefield[row+r][col+c].getMine()) {
+                    bombs++;
+                }
             }
         }
 
-        return bombs;
+        target.setBombs(bombs);
+    };
+
+    private void chainReveal(Cell target){
+        ArrayList<Cell> cells = new ArrayList<>();
+        int row = target.getRow();
+        int col = target.getCol();
+
+        for (int r = -1; r < 2; r++) {
+            for (int c = -1; c < 2; c++) {
+                if (isValid(row+r, col+c) && r != c) {
+                    if (!minefield[row+r][col+c].getMine()) {
+                        minefield[row+r][col+c].reveal();
+                    }
+                    if (minefield[row+r][col+c].getBombs() == 0) {
+                        cells.add(minefield[row+r][col+c]);
+                    }
+                }
+            }
+        }
+
+        for (Cell cell : cells) {
+            chainReveal(cell);
+        }
+
+        target.reveal();
+
+        frame.pack();
     };
 
     private boolean isValid(int row, int col){
@@ -106,12 +98,7 @@ class Board implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e){
-        JButton button = (JButton) e.getSource();
-        Cell cell = (Cell) button.getClientProperty("cell");
-        cell.reveal();
-        int[] position = cell.getPosition();
-        cell.findBombs(findBombs(position[0], position[1]));
-        render();
-        //button.setBackground(Color.green);
+        Cell cell = (Cell) ((JButton) e.getSource()).getClientProperty("cell");
+        chainReveal(cell);
     }
 }

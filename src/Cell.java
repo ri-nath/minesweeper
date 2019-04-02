@@ -1,10 +1,11 @@
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 
 class Cell {
 
     private boolean mine, flag, reveal;
-    private int bombs;
+    private int bombs, row, col;
     private int[] position;
     private JButton button;
 
@@ -17,10 +18,16 @@ class Cell {
         button.setPreferredSize(new Dimension(20, 20));
         button.setMargin(new Insets(0, 0, 0, 0));
         button.setFont(new Font("Arial", Font.PLAIN, 10));
+        button.setBackground(Color.lightGray);
+        button.setBorder(new LineBorder(Color.gray));
     }
 
-    void findBombs(int bombs) {
+    void setBombs(int bombs) {
         this.bombs = bombs;
+    }
+
+    int getBombs() {
+        return bombs;
     }
 
     boolean getMine() {
@@ -37,6 +44,7 @@ class Cell {
 
     void addMine() {
         mine = true;
+        button.setBackground(Color.red);
     }
 
     void flag() {
@@ -45,25 +53,24 @@ class Cell {
 
     void reveal() {
         reveal = true;
+        button.setBackground(Color.green);
+        if (bombs > 0) button.setText(Integer.toString(bombs));
     }
 
-    void position(int[] position) {
-        this.position = position;
+    void position(int row, int col) {
+        this.row = row;
+        this.col = col;
     }
 
-    int[] getPosition() {
-        return position;
+    int getRow() {
+        return row;
+    }
+
+    int getCol() {
+        return col;
     }
 
      JButton render() {
-        if (mine) button.setBackground(Color.red);
-        if (flag) button.setBackground(Color.red);
-        if (reveal) {
-            button.setBackground(Color.green);
-            if (bombs > 0) {
-                button.setText(Integer.toString(bombs));
-            }
-        }
         return button;
      };
 
