@@ -15,17 +15,16 @@ class Board implements ActionListener {
 
 
     Board(int height, int width) {
-        frame = new JFrame("minesweeper");
-
         this.height = height;
         this.width = width;
 
+        frame = new JFrame("minesweeper");
         minefield = new Cell[height][width];
 
         for (int row = 0; row < height; row++) {
             for (int col = 0; col < width; col++) {
                 Cell cell = new Cell();
-                if (new Random().nextInt(3)==0) cell.addMine();
+                if (new Random().nextInt(5)==0) cell.addMine();
                 cell.position(row, col);
                 minefield[row][col] = cell;
             }
@@ -55,43 +54,49 @@ class Board implements ActionListener {
 
         for (int r = -1; r < 2; r++) {
             for (int c = -1; c < 2; c++) {
-                if (isValid(row+r, col+c)) if (minefield[row+r][col+c].getMine()) {
+                if (validate(row+r, col+c)) if (minefield[row+r][col+c].checkMine()) {
                     bombs++;
                 }
             }
         }
 
-        target.setBombs(bombs);
+        target.setAdjMines(bombs);
     };
 
-    private void chainReveal(Cell target){
+    private void chainReveal(Cell origin){
+        if (origin.getReveal()) return;
+        if (origin.getAdjMines() > 0) {
+            origin.reveal();
+            return;
+        }
+
+        int row = origin.getRow();
+        int col = origin.getCol();
         ArrayList<Cell> cells = new ArrayList<>();
-        int row = target.getRow();
-        int col = target.getCol();
 
         for (int r = -1; r < 2; r++) {
             for (int c = -1; c < 2; c++) {
-                if (isValid(row+r, col+c) && r != c) {
-                    if (!minefield[row+r][col+c].getMine()) {
-                        minefield[row+r][col+c].reveal();
-                    }
-                    if (minefield[row+r][col+c].getBombs() == 0) {
-                        cells.add(minefield[row+r][col+c]);
+                if (validate(r+row, c+col)) {
+                    if (!minefield[r+row][c+col].getReveal()) {
+                        if (minefield[r+row][c+col].getAdjMines() > 0) {
+                            minefield[r+row][c+col].reveal();
+                        } else {
+                            cells.add(minefield[r+row][c+col]);
+                        }
                     }
                 }
             }
         }
 
+        origin.reveal();
+
         for (Cell cell : cells) {
             chainReveal(cell);
         }
-
-        target.reveal();
-
-        frame.pack();
     };
 
-    private boolean isValid(int row, int col){
+
+    private boolean validate(int row, int col){
         return (row >= 0) && (row < height) &&
                 (col >= 0) && (col < width);
     }

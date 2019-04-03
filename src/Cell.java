@@ -4,12 +4,12 @@ import java.awt.*;
 
 class Cell {
 
-    private boolean mine, flag, reveal;
-    private int bombs, row, col;
-    private int[] position;
+    private boolean mine, flag, reveal, checked;
+    private int adjMines, row, col;
     private JButton button;
 
     Cell() {
+        checked = false;
         mine = false;
         flag = false;
         reveal = false;
@@ -22,15 +22,23 @@ class Cell {
         button.setBorder(new LineBorder(Color.gray));
     }
 
-    void setBombs(int bombs) {
-        this.bombs = bombs;
+    void setChecked() {
+        checked = true;
     }
 
-    int getBombs() {
-        return bombs;
+    boolean getChecked() {
+        return checked;
     }
 
-    boolean getMine() {
+    void setAdjMines(int mines) {
+        adjMines = mines;
+    }
+
+    int getAdjMines() {
+        return adjMines;
+    }
+
+    boolean checkMine() {
         return mine;
     }
 
@@ -44,7 +52,6 @@ class Cell {
 
     void addMine() {
         mine = true;
-        button.setBackground(Color.red);
     }
 
     void flag() {
@@ -54,7 +61,8 @@ class Cell {
     void reveal() {
         reveal = true;
         button.setBackground(Color.green);
-        if (bombs > 0) button.setText(Integer.toString(bombs));
+        if (mine) button.setBackground(Color.red);
+        if (adjMines > 0) button.setText(Integer.toString(adjMines));
     }
 
     void position(int row, int col) {
@@ -72,6 +80,6 @@ class Cell {
 
      JButton render() {
         return button;
-     };
+     }
 
 }
