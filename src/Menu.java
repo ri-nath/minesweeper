@@ -13,10 +13,10 @@ class Menu {
 
     Menu() {
         difficulties = new HashMap<>();
-        difficulties.put("Easy", 25);
-        difficulties.put("Medium", 20);
-        difficulties.put("Hard", 15);
-        difficulties.put("Impossible", 5);
+        difficulties.put("Easy", 20);
+        difficulties.put("Medium", 10);
+        difficulties.put("Hard", 5);
+        difficulties.put("Impossible", 2);
 
         menu = new JFrame("minesweeper");
 

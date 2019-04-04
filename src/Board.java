@@ -3,20 +3,22 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Random;
 
 class Board implements ActionListener {
 
     private int height, width;
-    private boolean game;
+    private boolean game, start;
     private Cell[][] minefield;
     private JFrame frame;
     private ImageIcon mineIcon, flagIcon;
+    int difficulty;
 
     Board(int height, int width, int difficulty) {
+        start = false;
         this.height = height;
         this.width = width;
+        this.difficulty = difficulty;
 
         frame = new JFrame("minesweeper");
         minefield = new Cell[height][width];
@@ -31,12 +33,6 @@ class Board implements ActionListener {
                 cell.position(row, col);
                 cell.addIcon(flagIcon, mineIcon);
                 minefield[row][col] = cell;
-            }
-        }
-
-        for (Cell[] row : minefield) {
-            for (Cell cell : row) {
-                count(cell);
 
                 JButton button = cell.render();
                 button.addActionListener(this);
@@ -51,6 +47,29 @@ class Board implements ActionListener {
         frame.setVisible(true);
 
         game = true;
+    }
+
+    private void initialize(Cell origin) {
+
+        int row = origin.getRow();
+        int col = origin.getCol();
+
+        for (int r = -1; r < 2; r++) {
+            for (int c = -1; c < 2; c++) {
+                if (validate(r+row, c+col)) {
+                    minefield[r+row][c+col].removeMine();
+                }
+            }
+        }
+
+        for (Cell[] line : minefield) {
+            for (Cell cell : line) {
+                count(cell);
+            }
+        }
+
+        flood(origin);
+        start = true;
     }
 
     private ImageIcon loadImageIcon(String path, int size) {
@@ -128,14 +147,19 @@ class Board implements ActionListener {
     public void actionPerformed(ActionEvent event){
         if (game) {
             Cell cell = (Cell) ((JButton) event.getSource()).getClientProperty("cell");
-            if ((event.getModifiers() & ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK) {
-                cell.flag();
-            } else {
-                if (cell.checkMine()) {
-                    end();
+            if (start) {
+                if ((event.getModifiers() & ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK) {
+                    cell.flag();
+                } else {
+                    if (cell.checkMine()) {
+                        end();
+                    }
+                    flood(cell);
                 }
-                flood(cell);
+            } else {
+                initialize(cell);
             }
+
         }
     }
 }

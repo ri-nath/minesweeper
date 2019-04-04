@@ -43,6 +43,14 @@ class Cell {
         return mine;
     }
 
+    void addMine() {
+        mine = true;
+    }
+
+    void removeMine() {
+        mine = false;
+    }
+
     boolean getFlag() {
         return flag;
     }
@@ -51,9 +59,7 @@ class Cell {
         return reveal;
     }
 
-    void addMine() {
-        mine = true;
-    }
+
 
     void flag() {
         if (!reveal) {
