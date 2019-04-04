@@ -11,6 +11,7 @@ class Board implements ActionListener {
     private boolean game;
     private Cell[][] minefield;
     private JFrame frame;
+    private ImageIcon mineIcon, flagIcon;
 
 
     Board(int height, int width) {
@@ -21,11 +22,15 @@ class Board implements ActionListener {
         minefield = new Cell[height][width];
         game = true;
 
+        mineIcon = loadImageIcon("resources/mine.jpg", 20);
+        flagIcon = loadImageIcon("resources/flag.jpg", 20);
+
         for (int row = 0; row < height; row++) {
             for (int col = 0; col < width; col++) {
                 Cell cell = new Cell();
                 if (new Random().nextInt(5)==0) cell.addMine();
                 cell.position(row, col);
+                cell.addIcon(flagIcon, mineIcon);
                 minefield[row][col] = cell;
             }
         }
@@ -47,8 +52,12 @@ class Board implements ActionListener {
         frame.setVisible(true);
     }
 
-    boolean gameEnded() {
-        return !game;
+    private ImageIcon loadImageIcon(String path, int size) {
+        ImageIcon icon = new ImageIcon(getClass().getResource(path));
+        Image image = icon.getImage();
+        image = image.getScaledInstance(size, size, Image.SCALE_SMOOTH);
+        icon = new ImageIcon(image);
+        return icon;
     }
 
     private void count(Cell target){

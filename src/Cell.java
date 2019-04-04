@@ -14,8 +14,7 @@ class Cell {
         flag = false;
         reveal = false;
 
-        mineIcon = loadImageIcon("resources/mine.jpg", 20);
-        flagIcon = loadImageIcon("resources/flag.jpg", 20);
+
 
         button = new JButton();
         button.setPreferredSize(new Dimension(20, 20));
@@ -25,13 +24,12 @@ class Cell {
         button.setBorder(new LineBorder(Color.darkGray));
     }
 
-    private ImageIcon loadImageIcon(String path, int size) {
-        ImageIcon icon = new ImageIcon(getClass().getResource(path));
-        Image image = icon.getImage();
-        image = image.getScaledInstance(size, size, Image.SCALE_SMOOTH);
-        icon = new ImageIcon(image);
-        return icon;
+    void addIcon(ImageIcon flag, ImageIcon mine) {
+        mineIcon = mine;
+        flagIcon = flag;
     }
+
+
 
     void setAdjMines(int mines) {
         adjMines = mines;
