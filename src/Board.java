@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
 class Board implements ActionListener {
@@ -13,14 +14,12 @@ class Board implements ActionListener {
     private JFrame frame;
     private ImageIcon mineIcon, flagIcon;
 
-
-    Board(int height, int width) {
+    Board(int height, int width, int difficulty) {
         this.height = height;
         this.width = width;
 
         frame = new JFrame("minesweeper");
         minefield = new Cell[height][width];
-        game = true;
 
         mineIcon = loadImageIcon("resources/mine.jpg", 20);
         flagIcon = loadImageIcon("resources/flag.jpg", 20);
@@ -28,7 +27,7 @@ class Board implements ActionListener {
         for (int row = 0; row < height; row++) {
             for (int col = 0; col < width; col++) {
                 Cell cell = new Cell();
-                if (new Random().nextInt(5)==0) cell.addMine();
+                if (new Random().nextInt(difficulty) == 0) cell.addMine();
                 cell.position(row, col);
                 cell.addIcon(flagIcon, mineIcon);
                 minefield[row][col] = cell;
@@ -46,10 +45,12 @@ class Board implements ActionListener {
             }
         }
 
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         frame.setLayout(new GridLayout(height, width));
         frame.pack();
         frame.setVisible(true);
+
+        game = true;
     }
 
     private ImageIcon loadImageIcon(String path, int size) {

@@ -56,8 +56,10 @@ class Cell {
     }
 
     void flag() {
-        button.setIcon(flagIcon);
-        flag = true;
+        if (!reveal) {
+            button.setIcon(flagIcon);
+            flag = true;
+        }
     }
 
     void reveal() {
