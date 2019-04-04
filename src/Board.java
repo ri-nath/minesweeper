@@ -8,9 +8,8 @@ import java.util.Random;
 class Board implements ActionListener {
 
     private int height, width;
-
+    private boolean game;
     private Cell[][] minefield;
-
     private JFrame frame;
 
 
@@ -20,6 +19,7 @@ class Board implements ActionListener {
 
         frame = new JFrame("minesweeper");
         minefield = new Cell[height][width];
+        game = true;
 
         for (int row = 0; row < height; row++) {
             for (int col = 0; col < width; col++) {
@@ -32,7 +32,7 @@ class Board implements ActionListener {
 
         for (Cell[] row : minefield) {
             for (Cell cell : row) {
-                findBombs(cell);
+                count(cell);
 
                 JButton button = cell.render();
                 button.addActionListener(this);
@@ -47,7 +47,11 @@ class Board implements ActionListener {
         frame.setVisible(true);
     }
 
-    private void findBombs(Cell target){
+    boolean gameEnded() {
+        return !game;
+    }
+
+    private void count(Cell target){
         int bombs = 0;
         int row = target.getRow();
         int col = target.getCol();
@@ -63,7 +67,7 @@ class Board implements ActionListener {
         target.setAdjMines(bombs);
     };
 
-    private void chainReveal(Cell origin){
+    private void flood(Cell origin){
         if (origin.getReveal()) return;
         if (origin.getAdjMines() > 0) {
             origin.reveal();
@@ -91,19 +95,37 @@ class Board implements ActionListener {
         origin.reveal();
 
         for (Cell cell : cells) {
-            chainReveal(cell);
+            flood(cell);
         }
     };
-
 
     private boolean validate(int row, int col){
         return (row >= 0) && (row < height) &&
                 (col >= 0) && (col < width);
     }
 
+    private void end() {
+        game = false;
+
+        for (Cell[] row : minefield) {
+            for (Cell cell : row) {
+                cell.reveal();
+            }
+        }
+    }
+
     @Override
-    public void actionPerformed(ActionEvent e){
-        Cell cell = (Cell) ((JButton) e.getSource()).getClientProperty("cell");
-        chainReveal(cell);
+    public void actionPerformed(ActionEvent event){
+        if (game) {
+            Cell cell = (Cell) ((JButton) event.getSource()).getClientProperty("cell");
+            if ((event.getModifiers() & ActionEvent.CTRL_MASK) == ActionEvent.CTRL_MASK) {
+                cell.flag();
+            } else {
+                if (cell.checkMine()) {
+                    end();
+                }
+                flood(cell);
+            }
+        }
     }
 }

@@ -4,30 +4,33 @@ import java.awt.*;
 
 class Cell {
 
-    private boolean mine, flag, reveal, checked;
+    private boolean mine, flag, reveal;
     private int adjMines, row, col;
+    private ImageIcon mineIcon, flagIcon;
     private JButton button;
 
     Cell() {
-        checked = false;
         mine = false;
         flag = false;
         reveal = false;
+
+        mineIcon = loadImageIcon("resources/mine.jpg", 20);
+        flagIcon = loadImageIcon("resources/flag.jpg", 20);
 
         button = new JButton();
         button.setPreferredSize(new Dimension(20, 20));
         button.setMargin(new Insets(0, 0, 0, 0));
         button.setFont(new Font("Arial", Font.PLAIN, 10));
-        button.setBackground(Color.lightGray);
-        button.setBorder(new LineBorder(Color.gray));
+        button.setBackground(Color.gray);
+        button.setBorder(new LineBorder(Color.darkGray));
     }
 
-    void setChecked() {
-        checked = true;
-    }
-
-    boolean getChecked() {
-        return checked;
+    private ImageIcon loadImageIcon(String path, int size) {
+        ImageIcon icon = new ImageIcon(getClass().getResource(path));
+        Image image = icon.getImage();
+        image = image.getScaledInstance(size, size, Image.SCALE_SMOOTH);
+        icon = new ImageIcon(image);
+        return icon;
     }
 
     void setAdjMines(int mines) {
@@ -55,14 +58,21 @@ class Cell {
     }
 
     void flag() {
+        button.setIcon(flagIcon);
         flag = true;
     }
 
     void reveal() {
         reveal = true;
-        button.setBackground(Color.green);
-        if (mine) button.setBackground(Color.red);
-        if (adjMines > 0) button.setText(Integer.toString(adjMines));
+        button.setBackground(Color.lightGray);
+        if (mine) {
+            button.setIcon(mineIcon);
+        } else {
+            button.setIcon(null);
+            if (adjMines > 0) {
+                button.setText(Integer.toString(adjMines));
+            }
+        }
     }
 
     void position(int row, int col) {
