@@ -29,8 +29,6 @@ class Cell {
         flagIcon = flag;
     }
 
-
-
     void setAdjMines(int mines) {
         adjMines = mines;
     }
@@ -51,20 +49,19 @@ class Cell {
         mine = false;
     }
 
-    boolean getFlag() {
-        return flag;
-    }
-
     boolean getReveal() {
         return reveal;
     }
 
-
-
     void flag() {
         if (!reveal) {
-            button.setIcon(flagIcon);
-            flag = true;
+            if (flag) {
+                flag = false;
+                button.setIcon(null);
+            } else {
+                button.setIcon(flagIcon);
+                flag = true;
+            }
         }
     }
 
